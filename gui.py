@@ -60,12 +60,13 @@ def main():
 
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
-    canvas.create_window((0,0), window=frame, anchor="nw")
+    canvas.create_window((WINDOW_WIDTH/2, 0), window=frame, anchor="n")  # Center frame horizontally
 
     frame.bind("<Configure>", lambda event: on_configure(event, canvas))  # Pass canvas as an argument
-    # Change 'root' to 'frame' for all widgets
-    tk.Label(frame, text="Posture Shortcut", font=("Arial", 36)).pack(pady=10)
-    tk.Label(frame, text="Usage", font=("Arial", 24)).pack(pady=10)
+
+    # Use grid instead of pack for better centering
+    tk.Label(frame, text="Posture Shortcut", font=("Arial", 36)).grid(row=0, column=0, pady=10)
+    tk.Label(frame, text="Usage", font=("Arial", 24)).grid(row=1, column=0, pady=10)
 
     # Load and display the image
     image = Image.open(IMAGE_PATH)
@@ -73,13 +74,13 @@ def main():
     new_height = int((new_width / image.width) * image.height)  # Keep the aspect ratio
     resized_image = image.resize((new_width, new_height))
     photo = ImageTk.PhotoImage(resized_image)
-    img_label = tk.Label(frame, image=photo)  # Change 'root' to 'frame'
+    img_label = tk.Label(frame, image=photo)
     img_label.photo = photo
-    img_label.pack(pady=10)
+    img_label.grid(row=2, column=0, pady=10)  # Use grid
 
-    tk.Button(frame, text="Start", command=run_main, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).pack(pady=5)
-    tk.Button(frame, text="Shortcut History", command=open_history_window, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).pack(pady=5)
-    tk.Button(frame, text="Exit", command=exit_app, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).pack(pady=5)
+    tk.Button(frame, text="Start", command=run_main, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).grid(row=3, column=0, pady=5)  # Use grid
+    tk.Button(frame, text="Shortcut History", command=open_history_window, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).grid(row=4, column=0, pady=5)  # Use grid
+    tk.Button(frame, text="Exit", command=exit_app, width=BUTTON_WIDTH, height=BUTTON_HEIGHT).grid(row=5, column=0, pady=5)  # Use grid
 
     # This line is important to link the scrollbar to the canvas
     canvas.configure(yscrollcommand=scrollbar.set)
