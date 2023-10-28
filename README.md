@@ -12,7 +12,7 @@
 ### 製品説明（具体的な製品の説明）
 手のジェスチャを認識し、それに応じたPCのショートカットを実行することができるアプリケーションを開発しました。
 
-![Uploading image.png…]()
+![IMAGE ALT TEXT HERE](data/instruction_gui.png)
 
 ### 特長
 #### 1. 簡単なセットアップ
