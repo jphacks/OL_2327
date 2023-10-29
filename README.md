@@ -1,6 +1,6 @@
 # Finger Drawing
 
-![IMAGE ALT TEXT HERE](data/instruction_finger_drawing.png)
+<img width="1162" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
 
 ## 製品概要
 ウェブカメラ1つで空中の手の動きを捉え、ディスプレイ上に絵を描くことができます。
