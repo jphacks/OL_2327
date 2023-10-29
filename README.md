@@ -1,6 +1,6 @@
 # Finger Drawing
 
-<img width="1162" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
+<img width="500" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
 
 ## 製品概要
 ウェブカメラ1つで空中の手の動きを捉え、ディスプレイ上に絵を描くことができます。
@@ -9,12 +9,12 @@
 - タッチパッドを操作せずに、描画したい
 - iPadや液晶タブレットなどのデバイスに依存せずに、高精度な絵を描きたい
 
-![image](data/image1.png)
+<img width="800" alt="SCR-20230502-nedr" src=data/image1.png>
 
 ### 製品説明（具体的な製品の説明）
 ウェブカメラにより、人差し指を認識して、空中に描いた絵をディスプレイ上に反映させます。
 
-![image](data/image2.png)
+<img width="800" alt="SCR-20230502-nedr" src=data/image2.png>
 
 ### 特長
 #### 1. 簡単なセットアップ
