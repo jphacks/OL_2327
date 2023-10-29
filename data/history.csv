@@ -1,0 +1,16 @@
+Time,Action
+12:00:01,Copy
+12:00:05,Paste
+12:00:10,Undo
+12:00:15,Redo
+12:00:20,Save
+12:00:25,Open
+12:00:30,New
+12:00:35,Cut
+12:00:40,Find
+12:00:45,Replace
+12:00:50,Select All
+12:00:55,Print
+12:01:00,Zoom In
+12:01:05,Zoom Out
+12:01:10,Help
