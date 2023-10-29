@@ -39,6 +39,11 @@
 #### API・データ
 * MediaPipe
 * OpenCV
+* Tensorflow
+* protobuf <3.20,>=3.9.2
+* scikit-learn 1.0.2 or Later 
+* matplotlib 3.5.1 or Later
+
 
 #### フレームワーク・ライブラリ・モジュール
 * TensorFlow
