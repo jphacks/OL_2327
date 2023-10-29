@@ -1,4 +1,4 @@
-# Gesture Shortcut
+# Gesture Description
 
 ![IMAGE ALT TEXT HERE](data/instruction.png)
 
