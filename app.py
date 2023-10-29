@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import csv
 import copy
+import time
 import argparse
 import itertools
 from collections import Counter
@@ -10,6 +11,7 @@ from collections import deque
 import cv2 as cv
 import numpy as np
 import mediapipe as mp
+import matplotlib.pyplot as plt
 
 from utils import CvFpsCalc
 from model import KeyPointClassifier
@@ -38,7 +40,7 @@ def get_args():
     return args
 
 
-def main():
+def run_app():
     # 引数解析 #################################################################
     args = get_args()
 
@@ -82,6 +84,19 @@ def main():
 
     #  ########################################################################
     number, mode = 0, 0
+
+    # 逐次処理が始まる前の初期設定
+    # Create a new Figure and Axes for the separate window
+    fig, ax = plt.subplots()
+    fig.canvas.mpl_connect('key_press_event', on_key)
+    ax.set_xlim(0, 1500)
+    ax.set_ylim(0, 800)
+    ax.invert_yaxis()
+
+    # Turn on interactive mode to update the plot
+    plt.ion()
+    plt.show()
+
 
     while True:
     
@@ -129,8 +144,11 @@ def main():
                     if len(point_history) >= 2:
                         # Get the two most recent coordinates
                         recent_two_coords = [point_history[-1], point_history[-2]]
+
                         if not [0, 0] in point_history:
-                            print(recent_two_coords)
+                            draw_points(recent_two_coords, fig, ax)
+                else:
+                    point_history = deque(maxlen=history_length)
 
                 # フィンガージェスチャー分類
                 finger_gesture_id = 0
@@ -156,6 +174,10 @@ def main():
 
         # 画面反映 #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)
+
+    # Keep the window open after updating
+    plt.ioff()
+    plt.show()
 
     cap.release()
     cv.destroyAllWindows()
@@ -490,6 +512,23 @@ def draw_info(image, fps, mode, number):
                        cv.LINE_AA)
     return image
 
+def draw_points(points, fig, ax):
+
+    # Plot new points
+    for i in range(len(points) - 1):
+        x_values = [points[i][0], points[i+1][0]]
+        y_values = [points[i][1], points[i+1][1]]
+        ax.plot(x_values, y_values, "black")
+
+    # Draw the updated plot
+    plt.draw()
+
+def on_key(event):
+    global all_points
+    if event.key == ' ':
+        all_points = []
+        ax.clear()
+        plt.draw()
 
 if __name__ == '__main__':
-    main()
+    run_app()
