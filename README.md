@@ -1,4 +1,4 @@
-# Gesture Description
+# Finger Drawing
 
 ![IMAGE ALT TEXT HERE](data/instruction.png)
 
