@@ -125,7 +125,12 @@ def main():
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
                 if hand_sign_id == 2:  # 指差しサイン
                     point_history.append(landmark_list[8])  # 人差指座標
-                    print(point_history)
+
+                    if len(point_history) >= 2:
+                        # Get the two most recent coordinates
+                        recent_two_coords = [point_history[-1], point_history[-2]]
+                        if not [0, 0] in point_history:
+                            print(recent_two_coords)
 
                 # フィンガージェスチャー分類
                 finger_gesture_id = 0
