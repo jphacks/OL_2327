@@ -1,6 +1,6 @@
 # Finger Drawing
 
-![IMAGE ALT TEXT HERE](instruction_finger_drawing.png)
+![IMAGE ALT TEXT HERE](data/instruction_finger_drawing.png)
 
 ## 製品概要
 ウェブカメラ1つで空中の手の動きを捉え、PC上に絵を描くことができます。
