@@ -1,5 +1,14 @@
 # Finger Drawing
 
+## Usage
+### Requirements
+* Python 3.11.X
+### How to use
+```python
+python app.py
+```
+And enjoy
+
 <img width="500" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
 
 ## 製品概要
