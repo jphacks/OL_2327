@@ -9,10 +9,10 @@ python app.py
 ```
 And enjoy
 
-<img width="500" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
-
 ## 製品概要
 ウェブカメラ1つで空中の手の動きを捉え、PC上に絵を描くことができます。
+
+<img width="500" alt="SCR-20230502-nedr" src="data/instruction_finger_drawing.png">
 
 デモ動画(YouTube): https://www.youtube.com/watch?v=Gdhfze8IuLo
 
