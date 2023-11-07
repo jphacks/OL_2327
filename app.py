@@ -89,8 +89,8 @@ def run_app():
     # Create a new Figure and Axes for the separate window
     fig, ax = plt.subplots()
     fig.canvas.mpl_connect('key_press_event', on_key)
-    ax.set_xlim(0, 1500)
-    ax.set_ylim(0, 800)
+    ax.set_xlim(0, 1000)
+    ax.set_ylim(0, 600)
     ax.invert_yaxis()
 
     # ポインタを表示するための初期設定
