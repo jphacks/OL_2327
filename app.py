@@ -93,6 +93,10 @@ def run_app():
     ax.set_ylim(0, 800)
     ax.invert_yaxis()
 
+    # ポインタを表示するための初期設定
+    pointer, = ax.plot([], [], 'ro', markersize=10)  # ポインタを赤い点として初期化
+
+
     # Turn on interactive mode to update the plot
     plt.ion()
     plt.show()
@@ -138,8 +142,12 @@ def run_app():
 
                 # ハンドサイン分類
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
+                point_history.append(landmark_list[8])  # 人差指座標
+                 # 指先の座標を取得
+                fingertip_coord = landmark_list[8]
+                # ポインタの位置を更新
+                pointer.set_data(fingertip_coord[0], fingertip_coord[1])
                 if hand_sign_id == 2:  # 指差しサイン
-                    point_history.append(landmark_list[8])  # 人差指座標
 
                     if len(point_history) >= 2:
                         # Get the two most recent coordinates
@@ -147,6 +155,9 @@ def run_app():
 
                         if not [0, 0] in point_history:
                             draw_points(recent_two_coords, fig, ax)
+                       
+
+                    
                 else:
                     point_history = deque(maxlen=history_length)
 
