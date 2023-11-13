@@ -13,7 +13,7 @@ import numpy as np
 import mediapipe as mp
 import matplotlib.pyplot as plt
 
-from utils import CvFpsCalc
+# from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
@@ -72,8 +72,23 @@ def run_app():
 
     point_history_classifier = PointHistoryClassifier()
 
+    # ラベル読み込み ###########################################################
+    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+              encoding='utf-8-sig') as f:
+        keypoint_classifier_labels = csv.reader(f)
+        keypoint_classifier_labels = [
+            row[0] for row in keypoint_classifier_labels
+        ]
+    with open(
+            'model/point_history_classifier/point_history_classifier_label.csv',
+            encoding='utf-8-sig') as f:
+        point_history_classifier_labels = csv.reader(f)
+        point_history_classifier_labels = [
+            row[0] for row in point_history_classifier_labels
+        ]
+
     # FPS計測モジュール ########################################################
-    cvFpsCalc = CvFpsCalc(buffer_len=10)
+    # cvFpsCalc = CvFpsCalc(buffer_len=10)
 
     # 座標履歴 #################################################################
     history_length = 16
@@ -88,28 +103,30 @@ def run_app():
     # 逐次処理が始まる前の初期設定
     # Create a new Figure and Axes for the separate window
     fig, ax = plt.subplots()
+    # 背景色の設定
+    # ax.set_facecolor("blue")
     fig.canvas.mpl_connect('key_press_event', on_key)
     ax.set_xlim(0, 1000)
     ax.set_ylim(0, 600)
     ax.invert_yaxis()
 
     # ポインタを表示するための初期設定
-    pointer, = ax.plot([], [], 'ro', markersize=10)  # ポインタを赤い点として初期化
-
+    pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
 
     # Turn on interactive mode to update the plot
     plt.ion()
     plt.show()
 
-
+    count = 0
     while True:
-    
-        fps = cvFpsCalc.get()
+
+        # fps = cvFpsCalc.get()
 
         # キー処理(ESC：終了) #################################################
         key = cv.waitKey(10)
         if key == 27:  # ESC
             break
+        number, mode = select_mode(key, mode)
 
         # カメラキャプチャ #####################################################
         ret, image = cap.read()
@@ -139,11 +156,14 @@ def run_app():
                     landmark_list)
                 pre_processed_point_history_list = pre_process_point_history(
                     debug_image, point_history)
+                # 学習データ保存
+                logging_csv(number, mode, pre_processed_landmark_list,
+                            pre_processed_point_history_list)
 
                 # ハンドサイン分類
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
                 point_history.append(landmark_list[8])  # 人差指座標
-                 # 指先の座標を取得
+                # 指先の座標を取得
                 fingertip_coord = landmark_list[8]
                 # ポインタの位置を更新
                 pointer.set_data(fingertip_coord[0], fingertip_coord[1])
@@ -151,13 +171,13 @@ def run_app():
 
                     if len(point_history) >= 2:
                         # Get the two most recent coordinates
-                        recent_two_coords = [point_history[-1], point_history[-2]]
+                        recent_two_coords = [
+                            point_history[-1], point_history[-2]]
 
                         if not [0, 0] in point_history:
-                            draw_points(recent_two_coords, fig, ax)
-                       
+                            draw_points(recent_two_coords, fig, ax, count)
+                            count += 1
 
-                    
                 else:
                     point_history = deque(maxlen=history_length)
 
@@ -175,13 +195,22 @@ def run_app():
 
                 # 描画
                 debug_image = draw_bounding_rect(use_brect, debug_image, brect)
+
                 debug_image = draw_landmarks(debug_image, landmark_list)
+
+                debug_image = draw_info_text(
+                    debug_image,
+                    brect,
+                    handedness,
+                    keypoint_classifier_labels[hand_sign_id],
+                    point_history_classifier_labels[most_common_fg_id[0][0]],
+                )
         else:
             pass
             point_history.append([0, 0])
 
         debug_image = draw_point_history(debug_image, point_history)
-        debug_image = draw_info(debug_image, fps, mode, number)
+        debug_image = draw_info(debug_image, mode, number)
 
         # 画面反映 #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)
@@ -194,6 +223,19 @@ def run_app():
     cv.destroyAllWindows()
 
 
+def select_mode(key, mode):
+    number = -1
+    if 48 <= key <= 57:  # 0 ~ 9
+        number = key - 48
+    if key == 110:  # n
+        mode = 0
+    if key == 107:  # k
+        mode = 1
+    if key == 104:  # h
+        mode = 2
+    return number, mode
+
+
 def calc_bounding_rect(image, landmarks):
     image_width, image_height = image.shape[1], image.shape[0]
 
@@ -201,6 +243,7 @@ def calc_bounding_rect(image, landmarks):
 
     for _, landmark in enumerate(landmarks.landmark):
         landmark_x = min(int(landmark.x * image_width), image_width - 1)
+
         landmark_y = min(int(landmark.y * image_height), image_height - 1)
 
         landmark_point = [np.array((landmark_x, landmark_y))]
@@ -506,10 +549,10 @@ def draw_point_history(image, point_history):
     return image
 
 
-def draw_info(image, fps, mode, number):
-    cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+def draw_info(image, mode, number):
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
-    cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
 
     mode_string = ['Logging Key Point', 'Logging Point History']
@@ -523,16 +566,34 @@ def draw_info(image, fps, mode, number):
                        cv.LINE_AA)
     return image
 
-def draw_points(points, fig, ax):
 
+def draw_points(points, fig, ax, count):
     # Plot new points
     for i in range(len(points) - 1):
         x_values = [points[i][0], points[i+1][0]]
         y_values = [points[i][1], points[i+1][1]]
-        ax.plot(x_values, y_values, "black")
+        if count < 50:
+            print(count)
+            ax.plot(x_values, y_values, "green", alpha=1.0)
+        elif count > 50 and count < 100:
+            print("black")
+            ax.plot(x_values, y_values, "black", alpha=1.0, linewidth=8.0)
+        elif count > 100 and count < 150:
+            print("red")
+            ax.plot(x_values, y_values, "red", alpha=1.0, linewidth=3.0)
+        elif count > 150 and count < 200:
+            print("blue")
+            ax.plot(x_values, y_values, "blue", alpha=1.0, linewidth=10.0)
+        elif count > 200 and count < 250:
+            print("white")
+            ax.plot(x_values, y_values, "yellow", alpha=1.0, linewidth=15.0)
+        else:
+            print("blue")
+            ax.plot(x_values, y_values, "white", alpha=1.0, linewidth=20.0)
 
     # Draw the updated plot
     plt.draw()
+
 
 def on_key(event):
     global all_points
@@ -540,6 +601,71 @@ def on_key(event):
         all_points = []
         ax.clear()
         plt.draw()
+
+
+def logging_csv(number, mode, landmark_list, point_history_list):
+    if mode == 0:
+        pass
+    if mode == 1 and (0 <= number <= 9):
+        csv_path = 'model/keypoint_classifier/keypoint.csv'
+        with open(csv_path, 'a', newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([number, *landmark_list])
+    if mode == 2 and (0 <= number <= 9):
+        csv_path = 'model/point_history_classifier/point_history.csv'
+        with open(csv_path, 'a', newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([number, *point_history_list])
+    return
+
+
+def draw_info_text(image, brect, handedness, hand_sign_text,
+                   finger_gesture_text):
+    cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[1] - 22),
+                 (0, 0, 0), -1)
+
+    info_text = handedness.classification[0].label[0:]
+    if hand_sign_text != "":
+        info_text = info_text + ':' + hand_sign_text
+    cv.putText(image, info_text, (brect[0] + 5, brect[1] - 4),
+               cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
+
+    if finger_gesture_text != "":
+        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv.LINE_AA)
+        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
+                   cv.LINE_AA)
+
+    return image
+
+
+def draw_point_history(image, point_history):
+    for index, point in enumerate(point_history):
+        if point[0] != 0 and point[1] != 0:
+            cv.circle(image, (point[0], point[1]), 1 + int(index / 2),
+                      (152, 251, 152), 2)
+
+    return image
+
+
+def draw_info(image, mode, number):
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
+
+    mode_string = ['Logging Key Point', 'Logging Point History']
+    if 1 <= mode <= 2:
+        cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+        if 0 <= number <= 9:
+            cv.putText(image, "NUM:" + str(number), (10, 110),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                       cv.LINE_AA)
+    return image
+
 
 if __name__ == '__main__':
     run_app()
