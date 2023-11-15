@@ -9,7 +9,6 @@ import datetime
 import os
 from collections import Counter
 from collections import deque
-from playsound import playsound
 
 import cv2 as cv
 import numpy as np
@@ -679,10 +678,7 @@ def take_screenshot(ax, fig):
 
     # 指定したパスに画像を保存
     plt.savefig(full_path, bbox_inches=extent)
-    playsound('path/to/soundfile.mp3')  # 音声ファイルを再生
-
-
-    print("\x07")
+    os.system("osascript -e 'beep 1'")
 
 
 
