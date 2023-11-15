@@ -14,6 +14,7 @@ import cv2 as cv
 import numpy as np
 import mediapipe as mp
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 # from utils import CvFpsCalc
 from model import KeyPointClassifier
@@ -119,8 +120,13 @@ def run_app():
     hand_sign_4_start_time = None
     hand_sign_4_duration = 3  # 3秒間
 
+    hand_sign_2_start_time = None
+    hand_sign_2_duration = 5  # 5秒間
+
+
 
     # Turn on interactive mode to update the plot
+    # ax.axis('off')
     plt.ion()
     plt.show()
 
@@ -176,14 +182,28 @@ def run_app():
                 pointer.set_data(fingertip_coord[0], fingertip_coord[1])
 
                 if hand_sign_id == 3:  # screen shot
+                    hand_sign_2_start_time = None
                     if hand_sign_4_start_time is None:
                         hand_sign_4_start_time = time.time()
                     elif (time.time() - hand_sign_4_start_time) >= hand_sign_4_duration:
+                        pointer.set_data([], [])
                         take_screenshot(ax, fig)
+                        pointer.set_data(fingertip_coord[0], fingertip_coord[1])
                         hand_sign_4_start_time = None
+
+                elif hand_sign_id == 1:  #close all delete
+                    hand_sign_4_start_time = None
+                    if hand_sign_2_start_time is None:
+                        hand_sign_2_start_time = time.time()
+                    elif (time.time() - hand_sign_2_start_time) >= hand_sign_2_duration:
+                        destroy_all(ax, fig)
+                        # ポインタを表示するための初期設定
+                        pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
+                        hand_sign_2_start_time = None
 
                 elif hand_sign_id == 2:  # 指差しサイン
                     hand_sign_4_start_time = None
+                    hand_sign_2_start_time = None
                     if len(point_history) >= 2:
                         # Get the two most recent coordinates
                         recent_two_coords = [
@@ -194,6 +214,7 @@ def run_app():
                             count += 1
                 else:
                     hand_sign_4_start_time = None
+                    hand_sign_2_start_time = None
                     point_history = deque(maxlen=history_length)
 
                 # フィンガージェスチャー分類
@@ -682,6 +703,27 @@ def take_screenshot(ax, fig):
     plt.savefig(full_path, bbox_inches=extent)
     os.system("osascript -e 'beep 1'")
 
+def destroy_all(ax, fig):
+    
+    os.system("osascript -e 'beep 2'")
+
+    # 軸の内容をクリア
+    ax.clear()
+
+    # 軸の設定を再適用
+    ax.set_xlim(0, 1000)
+    ax.set_ylim(0, 600)
+    ax.invert_yaxis()
+
+    # 必要なら他の初期設定をここに追加
+
+     
+
+    # 変更を反映
+    fig.canvas.draw()
+
+
+   
 
 
 
