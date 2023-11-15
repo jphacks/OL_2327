@@ -174,8 +174,16 @@ def run_app():
                 fingertip_coord = landmark_list[8]
                 # ポインタの位置を更新
                 pointer.set_data(fingertip_coord[0], fingertip_coord[1])
-                if hand_sign_id == 2:  # 指差しサイン
 
+                if hand_sign_id == 3:  # screen shot
+                    if hand_sign_4_start_time is None:
+                        hand_sign_4_start_time = time.time()
+                    elif (time.time() - hand_sign_4_start_time) >= hand_sign_4_duration:
+                        take_screenshot(ax, fig)
+                        hand_sign_4_start_time = None
+
+                elif hand_sign_id == 2:  # 指差しサイン
+                    hand_sign_4_start_time = None
                     if len(point_history) >= 2:
                         # Get the two most recent coordinates
                         recent_two_coords = [
@@ -184,14 +192,8 @@ def run_app():
                         if not [0, 0] in point_history:
                             draw_points(recent_two_coords, fig, ax, count)
                             count += 1
-                elif hand_sign_id == 3:  # screen shot
-                    if hand_sign_4_start_time is None:
-                        hand_sign_4_start_time = time.time()
-                    elif (time.time() - hand_sign_4_start_time) >= hand_sign_4_duration:
-                        take_screenshot(ax, fig)
-                        hand_sign_4_start_time = None
-
                 else:
+                    hand_sign_4_start_time = None
                     point_history = deque(maxlen=history_length)
 
                 # フィンガージェスチャー分類
@@ -665,7 +667,7 @@ def draw_info(image, mode, number):
     return image
 
 def take_screenshot(ax, fig):
-    print("Taking screenshot...")
+
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'FD_{timestamp}.png'
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
