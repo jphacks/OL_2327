@@ -5,8 +5,11 @@ import copy
 import time
 import argparse
 import itertools
+import datetime
+import os
 from collections import Counter
 from collections import deque
+from playsound import playsound
 
 import cv2 as cv
 import numpy as np
@@ -113,6 +116,11 @@ def run_app():
     # ポインタを表示するための初期設定
     pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
 
+
+    hand_sign_4_start_time = None
+    hand_sign_4_duration = 3  # 3秒間
+
+
     # Turn on interactive mode to update the plot
     plt.ion()
     plt.show()
@@ -177,6 +185,12 @@ def run_app():
                         if not [0, 0] in point_history:
                             draw_points(recent_two_coords, fig, ax, count)
                             count += 1
+                elif hand_sign_id == 3:  # screen shot
+                    if hand_sign_4_start_time is None:
+                        hand_sign_4_start_time = time.time()
+                    elif (time.time() - hand_sign_4_start_time) >= hand_sign_4_duration:
+                        take_screenshot(ax, fig)
+                        hand_sign_4_start_time = None
 
                 else:
                     point_history = deque(maxlen=history_length)
@@ -572,25 +586,10 @@ def draw_points(points, fig, ax, count):
     for i in range(len(points) - 1):
         x_values = [points[i][0], points[i+1][0]]
         y_values = [points[i][1], points[i+1][1]]
-        if count < 50:
-            print(count)
-            ax.plot(x_values, y_values, "green", alpha=1.0)
-        elif count > 50 and count < 100:
-            print("black")
-            ax.plot(x_values, y_values, "black", alpha=1.0, linewidth=8.0)
-        elif count > 100 and count < 150:
-            print("red")
-            ax.plot(x_values, y_values, "red", alpha=1.0, linewidth=3.0)
-        elif count > 150 and count < 200:
-            print("blue")
-            ax.plot(x_values, y_values, "blue", alpha=1.0, linewidth=10.0)
-        elif count > 200 and count < 250:
-            print("white")
-            ax.plot(x_values, y_values, "yellow", alpha=1.0, linewidth=15.0)
-        else:
-            print("blue")
-            ax.plot(x_values, y_values, "white", alpha=1.0, linewidth=20.0)
 
+        # print(count)
+        ax.plot(x_values, y_values, "green", alpha=1.0)
+        
     # Draw the updated plot
     plt.draw()
 
@@ -665,6 +664,27 @@ def draw_info(image, mode, number):
                        cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
                        cv.LINE_AA)
     return image
+
+def take_screenshot(ax, fig):
+    print("Taking screenshot...")
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'FD_{timestamp}.png'
+    extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+
+    # デスクトップのパスを取得
+    desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
+
+    # デスクトップパスとファイル名を結合してフルパスを作成
+    full_path = os.path.join(desktop_path, filename)
+
+    # 指定したパスに画像を保存
+    plt.savefig(full_path, bbox_inches=extent)
+    playsound('path/to/soundfile.mp3')  # 音声ファイルを再生
+
+
+    print("\x07")
+
+
 
 
 if __name__ == '__main__':
