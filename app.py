@@ -260,7 +260,7 @@ def run_app():
             pass
             point_history.append([0, 0])
             hand_sign_label=""
-            
+            pointer.set_data([], [])
         update_hand_sign_label(fig, ax, hand_sign_label, ax.label_ax)
         debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_info(debug_image, mode, number)
