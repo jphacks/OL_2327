@@ -108,7 +108,9 @@ def run_app():
     fig, ax = plt.subplots()
     # 背景色の設定
     # ax.set_facecolor("blue")
-    fig.canvas.mpl_connect('key_press_event', on_key)
+
+    # fig.canvas.mpl_connect('key_press_event', on_key)
+
     ax.set_xlim(0, 1000)
     ax.set_ylim(0, 600)
     ax.invert_yaxis()
@@ -123,7 +125,7 @@ def run_app():
 
 
     # ポインタを表示するための初期設定
-    pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
+    pointer, = ax.plot([], [], 'go', markersize=10, zorder=4, alpha=0.5)  # ポインタを緑色で透明度0.5で初期化
 
     ax.label_ax = fig.add_axes([0.5, 0.9, 0.1, 0])  # 位置と大きさは必要に応じて調整　[x位置、y位置、幅、高さ]
     ax.label_ax.axis('off')
@@ -211,8 +213,7 @@ def run_app():
                         hand_sign_2_start_time = time.time()
                     elif (time.time() - hand_sign_2_start_time) >= hand_sign_2_duration:
                         destroy_all(ax, fig)
-                        # ポインタを表示するための初期設定
-                        pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
+                        pointer, = ax.plot([], [], 'go', markersize=10, zorder=4, alpha=0.5)  # ポインタを緑色で透明度0.5で初期化
                         hand_sign_2_start_time = None
 
                 elif hand_sign_id == 2:  # 指差しサイン
@@ -626,18 +627,17 @@ def draw_points(points, fig, ax, count):
         y_values = [points[i][1], points[i+1][1]]
 
         # print(count)
-        ax.plot(x_values, y_values, "green", alpha=1.0)
+        ax.plot(x_values, y_values, "black", alpha=1.0)
         
     # Draw the updated plot
     plt.draw()
 
-
-def on_key(event):
-    global all_points
-    if event.key == ' ':
-        all_points = []
-        ax.clear()
-        plt.draw()
+# これいる？
+# def on_key(event):
+#     global all_points
+#     if event.key == ' ':
+#         all_points = []
+#         ax.clear()
 
 
 def logging_csv(number, mode, landmark_list, point_history_list):
