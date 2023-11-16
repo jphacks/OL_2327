@@ -113,17 +113,27 @@ def run_app():
     ax.set_ylim(0, 600)
     ax.invert_yaxis()
 
+    # X軸とY軸の目盛りラベルを非表示にする
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    # 枠線は表示されるが目盛りラベルは表示されない
+    ax.tick_params(axis='x', which='both', length=0)  # X軸の目盛りの長さを0に
+    ax.tick_params(axis='y', which='both', length=0)  # Y軸の目盛りの長さを0に
+
+
     # ポインタを表示するための初期設定
     pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
 
+    ax.label_ax = fig.add_axes([0.5, 0.9, 0.1, 0])  # 位置と大きさは必要に応じて調整　[x位置、y位置、幅、高さ]
+    ax.label_ax.axis('off')
+
 
     hand_sign_4_start_time = None
-    hand_sign_4_duration = 3  # 3秒間
+    hand_sign_4_duration = 2  # 3秒間
 
     hand_sign_2_start_time = None
-    hand_sign_2_duration = 5  # 5秒間
-
-
+    hand_sign_2_duration = 3  # 5秒間
 
     # Turn on interactive mode to update the plot
     # ax.axis('off')
@@ -175,6 +185,10 @@ def run_app():
 
                 # ハンドサイン分類
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
+                hand_sign_label = keypoint_classifier_labels[hand_sign_id]
+                
+                # update_hand_sign_label(hand_sign_label)
+
                 point_history.append(landmark_list[8])  # 人差指座標
                 # 指先の座標を取得
                 fingertip_coord = landmark_list[8]
@@ -244,7 +258,9 @@ def run_app():
         else:
             pass
             point_history.append([0, 0])
-
+            hand_sign_label=""
+            
+        update_hand_sign_label(fig, ax, hand_sign_label, ax.label_ax)
         debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_info(debug_image, mode, number)
 
@@ -715,7 +731,15 @@ def destroy_all(ax, fig):
     ax.set_ylim(0, 600)
     ax.invert_yaxis()
 
-    # 必要なら他の初期設定をここに追加
+    # X軸とY軸の目盛りラベルを非表示にする
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    # 枠線は表示されるが目盛りラベルは表示されない
+    ax.tick_params(axis='x', which='both', length=0)  # X軸の目盛りの長さを0に
+    ax.tick_params(axis='y', which='both', length=0)  # Y軸の目盛りの長さを0に
+
+
 
      
 
@@ -723,9 +747,23 @@ def destroy_all(ax, fig):
     fig.canvas.draw()
 
 
-   
+def update_hand_sign_label(fig, ax, label,label_ax):
 
+    # 古いラベルを削除（あれば）
+    if hasattr(label_ax, 'hand_sign_text'):
+        ax.label_ax.hand_sign_text.remove()
+
+    # 新しいラベルを表示
+    ax.label_ax.hand_sign_text = ax.label_ax.text(0.5, 0.5, label, 
+                                                  transform=ax.label_ax.transAxes, 
+                                                  verticalalignment='center', 
+                                                  horizontalalignment='center',
+                                                  fontsize=12, color='black')
+    
+
+    fig.canvas.draw_idle()
 
 
 if __name__ == '__main__':
+
     run_app()
