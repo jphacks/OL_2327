@@ -105,7 +105,7 @@ def run_app():
 
     # 逐次処理が始まる前の初期設定
     # Create a new Figure and Axes for the separate window
-    fig, ax = plt.subplots(dpi=150)
+    fig, ax = plt.subplots(dpi=180)
     # 背景色の設定
     # ax.set_facecolor("blue")
 
@@ -127,7 +127,7 @@ def run_app():
     # ポインタを表示するための初期設定
     pointer, = ax.plot([], [], 'go', markersize=10, zorder=4, alpha=0.5)  # ポインタを緑色で透明度0.5で初期化
 
-    ax.label_ax = fig.add_axes([0.5, 0.9, 0.1, 0])  # 位置と大きさは必要に応じて調整　[x位置、y位置、幅、高さ]
+    ax.label_ax = fig.add_axes([0.35, 0.05, 0.3, 0.03])  # 位置と大きさは必要に応じて調整　[x位置、y位置、幅、高さ]
     ax.label_ax.axis('off')
 
 
@@ -246,6 +246,9 @@ def run_app():
                     hand_sign_2_end_triggered = False
                     end_start_time = None
                     point_history = deque(maxlen=history_length)
+                
+                # ランドマークの描画
+                # debug_image = draw_landmarks(debug_image, landmark_list)
 
         else:
             pass
@@ -257,7 +260,7 @@ def run_app():
         # debug_image = draw_info(debug_image, mode, number)
 
         # 画面反映 #############################################################
-        # cv.imshow('Hand Gesture Recognition', image)
+        # cv.imshow('Hand Gesture Recognition', debug_image)
 
     # Keep the window open after updating
     plt.ioff()
@@ -469,22 +472,22 @@ def draw_point_history(image, point_history):
     return image
 
 
-# def draw_info(image, mode, number):
-#     cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
-#                1.0, (0, 0, 0), 4, cv.LINE_AA)
-#     cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
-#                1.0, (255, 255, 255), 2, cv.LINE_AA)
+def draw_info(image, mode, number):
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "FPS:", (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
 
-#     mode_string = ['Logging Key Point', 'Logging Point History']
-#     if 1 <= mode <= 2:
-#         cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
-#                    cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
-#                    cv.LINE_AA)
-#         if 0 <= number <= 9:
-#             cv.putText(image, "NUM:" + str(number), (10, 110),
-#                        cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
-#                        cv.LINE_AA)
-#     return image
+    mode_string = ['Logging Key Point', 'Logging Point History']
+    if 1 <= mode <= 2:
+        cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+        if 0 <= number <= 9:
+            cv.putText(image, "NUM:" + str(number), (10, 110),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                       cv.LINE_AA)
+    return image
 
 def take_screenshot(ax, fig):
     # 現在のタイムスタンプでファイル名を生成
@@ -545,7 +548,9 @@ def update_hand_sign_label(fig, ax, label,label_ax):
                                                   transform=ax.label_ax.transAxes, 
                                                   verticalalignment='center', 
                                                   horizontalalignment='center',
-                                                  fontsize=12, color='black')
+                                                  fontsize=12, color='black',
+                                                  bbox=dict(facecolor='gray', edgecolor='none', alpha=0.5)
+    )
     
 
     fig.canvas.draw_idle()
@@ -572,6 +577,7 @@ def remove_white_background(image):
     dst = cv.merge(rgba)
 
     return dst
+
 
 
 if __name__ == '__main__':
