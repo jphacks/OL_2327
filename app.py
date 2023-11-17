@@ -76,14 +76,23 @@ def run_app():
     point_history_classifier = PointHistoryClassifier()
 
     # ラベル読み込み ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+    base_path = os.path.dirname(__file__)
+    tmp_path_keypoint = 'model/keypoint_classifier/keypoint_classifier_label.csv'
+    tmp_path_point_history = "model/point_history_classifier/point_history_classifier_label.csv"
+    keypoint_csv = os.path.join(
+        base_path, tmp_path_keypoint)
+    point_history_csv = os.path.join(
+        base_path, tmp_path_point_history)
+    print(keypoint_csv)
+
+    with open(keypoint_csv,
               encoding='utf-8-sig') as f:
         keypoint_classifier_labels = csv.reader(f)
         keypoint_classifier_labels = [
             row[0] for row in keypoint_classifier_labels
         ]
     with open(
-            'model/point_history_classifier/point_history_classifier_label.csv',
+            point_history_csv,
             encoding='utf-8-sig') as f:
         point_history_classifier_labels = csv.reader(f)
         point_history_classifier_labels = [
@@ -116,14 +125,11 @@ def run_app():
     # ポインタを表示するための初期設定
     pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
 
-
     hand_sign_4_start_time = None
     hand_sign_4_duration = 3  # 3秒間
 
     hand_sign_2_start_time = None
     hand_sign_2_duration = 5  # 5秒間
-
-
 
     # Turn on interactive mode to update the plot
     # ax.axis('off')
@@ -188,17 +194,20 @@ def run_app():
                     elif (time.time() - hand_sign_4_start_time) >= hand_sign_4_duration:
                         pointer.set_data([], [])
                         take_screenshot(ax, fig)
-                        pointer.set_data(fingertip_coord[0], fingertip_coord[1])
+                        pointer.set_data(
+                            fingertip_coord[0], fingertip_coord[1])
                         hand_sign_4_start_time = None
 
-                elif hand_sign_id == 1:  #close all delete
+                elif hand_sign_id == 1:  # close all delete
                     hand_sign_4_start_time = None
                     if hand_sign_2_start_time is None:
                         hand_sign_2_start_time = time.time()
                     elif (time.time() - hand_sign_2_start_time) >= hand_sign_2_duration:
                         destroy_all(ax, fig)
                         # ポインタを表示するための初期設定
-                        pointer, = ax.plot([], [], 'ko', markersize=10, zorder=4)  # ポインタを赤い点として初期化
+                        # ポインタを赤い点として初期化
+                        pointer, = ax.plot(
+                            [], [], 'ko', markersize=10, zorder=4)
                         hand_sign_2_start_time = None
 
                 elif hand_sign_id == 2:  # 指差しサイン
@@ -611,7 +620,7 @@ def draw_points(points, fig, ax, count):
 
         # print(count)
         ax.plot(x_values, y_values, "green", alpha=1.0)
-        
+
     # Draw the updated plot
     plt.draw()
 
@@ -687,6 +696,7 @@ def draw_info(image, mode, number):
                        cv.LINE_AA)
     return image
 
+
 def take_screenshot(ax, fig):
 
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -703,8 +713,9 @@ def take_screenshot(ax, fig):
     plt.savefig(full_path, bbox_inches=extent)
     os.system("osascript -e 'beep 1'")
 
+
 def destroy_all(ax, fig):
-    
+
     os.system("osascript -e 'beep 2'")
 
     # 軸の内容をクリア
@@ -717,14 +728,8 @@ def destroy_all(ax, fig):
 
     # 必要なら他の初期設定をここに追加
 
-     
-
     # 変更を反映
     fig.canvas.draw()
-
-
-   
-
 
 
 if __name__ == '__main__':
