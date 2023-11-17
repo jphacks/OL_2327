@@ -257,7 +257,7 @@ def run_app():
         # debug_image = draw_info(debug_image, mode, number)
 
         # 画面反映 #############################################################
-        cv.imshow('Hand Gesture Recognition', debug_image)
+        # cv.imshow('Hand Gesture Recognition', image)
 
     # Keep the window open after updating
     plt.ioff()
@@ -487,20 +487,24 @@ def draw_point_history(image, point_history):
 #     return image
 
 def take_screenshot(ax, fig):
-
+    # 現在のタイムスタンプでファイル名を生成
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'FD_{timestamp}.png'
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
 
     # デスクトップのパスを取得
     desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-
-    # デスクトップパスとファイル名を結合してフルパスを作成
     full_path = os.path.join(desktop_path, filename)
 
-    # 指定したパスに画像を保存
-    plt.savefig(full_path, bbox_inches=extent)
+    ax.axis('off')
+
+    # 画像を保存
+    plt.savefig(full_path, bbox_inches=extent, transparent=True)
+    ax.axis('on')
+
+    # サウンドを再生
     os.system("osascript -e 'beep 1'")
+
 
 def destroy_all(ax, fig):
     
@@ -545,6 +549,29 @@ def update_hand_sign_label(fig, ax, label,label_ax):
     
 
     fig.canvas.draw_idle()
+
+def remove_white_background(image):
+    # BGR から HSV へ変換
+    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+
+    # 白色の範囲を定義（HSV空間）
+    # HSVで白色は、低い彩度と高い明度で表されます。
+    lower_white = np.array([0, 0, 200])
+    upper_white = np.array([180, 55, 255])
+
+    # 背景色（白色）のマスクを作成
+    mask = cv.inRange(hsv, lower_white, upper_white)
+
+    # マスクを反転して前景を取得
+    foreground = cv.bitwise_and(image, image, mask=~mask)
+
+    # 透明度アルファチャンネルの追加
+    alpha_channel = cv.bitwise_not(mask)
+    b, g, r = cv.split(foreground)
+    rgba = [b, g, r, alpha_channel]
+    dst = cv.merge(rgba)
+
+    return dst
 
 
 if __name__ == '__main__':
