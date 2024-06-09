@@ -54,12 +54,12 @@ PCのタッチパッドを使用せずに描くことができるので、あた
 
 #### フレームワーク・ライブラリ・モジュール
 * MediaPipe
-* OpenCV
-* mediapipe
-* tensorflow
-* scikit-learn
-* matplotlib
-* protobuf
+* opencv-python(4.8.1.78)
+* mediapipe(0.10.8)
+* tensorflow(2.14.0)
+* scikit-learn(1.3.2)
+* matplotlib(3.8.1)
+* protobuf(4.25.2)
 
 #### デバイス
 * ウェブカメラ
